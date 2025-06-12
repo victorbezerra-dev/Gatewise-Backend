@@ -1,0 +1,23 @@
+version: '3.9'
+
+services:
+  keycloak:
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB_NAME: keycloak
+      KC_DB_USER: keycloak
+      KC_DB_PASSWORD: keycloak
+
+  maven-builder:
+    image: maven:3.9.4-eclipse-temurin-17
+    working_dir: /app
+    volumes:
+      - ../spiprovider/university-idp:/app
+      - ../keycloak/providers:/output
+    command: >
+      bash -c "
+        mvn clean package &&
+        cp target/*.jar /output
+      "
