@@ -14,3 +14,6 @@ out/
 
 # VSCode
 .vscode/
+
+#Keycloak provider
+keycloak/providers/*.jar
