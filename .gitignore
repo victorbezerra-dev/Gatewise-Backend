@@ -17,3 +17,58 @@ out/
 
 #Keycloak provider
 keycloak/providers/*.jar
+
+## Build results
+bin/
+obj/
+
+## User-specific files
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+
+## Visual Studio and VS Code settings
+.vscode/
+.vs/
+
+## NuGet packages
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+
+## Logs
+*.log
+
+## Temporary files
+*.tmp
+*.bak
+*.old
+*.orig
+
+## Dotnet CLI
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## ASP.NET specific
+wwwroot/dist/
+wwwroot/node_modules/
+
+## Rider IDE
+.idea/
+
+## Mac/Linux system files
+.DS_Store
+Thumbs.db
+
+## Test results
+TestResults/
+coverage/
+
+## Secrets (opcional, se existirem)
+secrets.json
+appsettings.Development.json
+appsettings.Local.json
+
