@@ -72,3 +72,4 @@ secrets.json
 appsettings.Development.json
 appsettings.Local.json
 
+backend/data
