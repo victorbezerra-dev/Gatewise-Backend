@@ -98,16 +98,18 @@ public class CustomAuthenticator extends UsernamePasswordForm implements Authent
         }
 
         context.setUser(user);
-        user.setSingleAttribute("custom.name", Objects.toString(userData.getNome(), ""));
-        user.setSingleAttribute("custom.description", Objects.toString(userData.getDescricao(), ""));
-        user.setSingleAttribute("custom.registration", Objects.toString(userData.getMatricula(), ""));
-        user.setSingleAttribute("custom.email", Objects.toString(userData.getEmail(), ""));
-        user.setSingleAttribute("custom.photo", Objects.toString(userData.getFoto(), ""));
-        user.setSingleAttribute("custom.unitId", String.valueOf(userData.getUnidadeId()));
-        user.setSingleAttribute("custom.unitName", Objects.toString(userData.getNomeUnidade(), ""));
-        user.setSingleAttribute("custom.courseId", String.valueOf(userData.getCursoId()));
-        user.setSingleAttribute("custom.entryYear", String.valueOf(userData.getAnoIngresso()));
-        user.setSingleAttribute("custom.statusDescription", Objects.toString(userData.getDescricaoSituacao(), ""));
+        if (userData != null) {
+            user.setSingleAttribute("custom.name", Objects.toString(userData.getNome(), ""));
+            user.setSingleAttribute("custom.description", Objects.toString(userData.getDescricao(), ""));
+            user.setSingleAttribute("custom.registration", Objects.toString(userData.getMatricula(), ""));
+            user.setSingleAttribute("custom.email", Objects.toString(userData.getEmail(), ""));
+            user.setSingleAttribute("custom.photo", Objects.toString(userData.getFoto(), ""));
+            user.setSingleAttribute("custom.unitId", String.valueOf(userData.getUnidadeId()));
+            user.setSingleAttribute("custom.unitName", Objects.toString(userData.getNomeUnidade(), ""));
+            user.setSingleAttribute("custom.courseId", String.valueOf(userData.getCursoId()));
+            user.setSingleAttribute("custom.entryYear", String.valueOf(userData.getAnoIngresso()));
+            user.setSingleAttribute("custom.statusDescription", Objects.toString(userData.getDescricaoSituacao(), ""));
+        }
 
         context.success();
     }
