@@ -10,6 +10,30 @@ services:
       KC_DB_USER: keycloak
       KC_DB_PASSWORD: keycloak
 
+  gatewise-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: gatewise
+      POSTGRES_USER: gatewise
+      POSTGRES_PASSWORD: gatewise
+    volumes:
+      - ../backend/data/gatewise:/var/lib/postgresql/data
+
+  backend:
+    image: mcr.microsoft.com/dotnet/sdk:9.0
+    working_dir: /app/GateWise.Api
+    command: dotnet watch run --urls=http://0.0.0.0:8081
+    volumes:
+      - ../backend/GateWise.Api:/app/GateWise.Api
+    ports:
+    - "8081:8081"
+    environment:
+      ConnectionStrings__DefaultConnection: "Host=gatewise-db;Database=gatewise;Username=gatewise;Password=gatewise"
+    depends_on:
+    - gatewise-db
+    - keycloak
+
+
   maven-builder:
     image: maven:3.9.4-eclipse-temurin-17
     working_dir: /app
