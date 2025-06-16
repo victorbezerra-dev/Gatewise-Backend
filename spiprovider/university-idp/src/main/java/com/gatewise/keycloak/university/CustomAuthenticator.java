@@ -1,6 +1,7 @@
 package com.gatewise.keycloak.university;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.AuthenticationFlowError;
@@ -10,6 +11,7 @@ import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 
 import com.gatewise.keycloak.university.dto.AuthResponseDTO;
+import com.gatewise.keycloak.university.dto.AuthResponseDTO.Vinculo;
 
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
@@ -60,6 +62,8 @@ public class CustomAuthenticator extends UsernamePasswordForm implements Authent
 
         RealmModel realm = context.getRealm();
         UserModel user = context.getSession().users().getUserByUsername(realm, username);
+        Vinculo userData = response.getVinculo();
+
         if (user == null) {
             user = context.getSession().users().addUser(realm, username);
             user.setEnabled(true);
@@ -70,8 +74,8 @@ public class CustomAuthenticator extends UsernamePasswordForm implements Authent
             String fullName = null;
             if (response.getNome() != null) {
                 fullName = response.getNome().trim();
-            } else if (response.getVinculo() != null && response.getVinculo().getNome() != null) {
-                fullName = response.getVinculo().getNome().trim();
+            } else if (userData != null && userData.getNome() != null) {
+                fullName = userData.getNome().trim();
             }
 
             if (fullName != null && !fullName.isEmpty()) {
@@ -86,14 +90,25 @@ public class CustomAuthenticator extends UsernamePasswordForm implements Authent
             user.setLastName(lastName);
 
             String email = "";
-            if (response.getVinculo() != null && response.getVinculo().getEmail() != null) {
-                email = response.getVinculo().getEmail();
+            if (userData != null && userData.getEmail() != null) {
+                email = userData.getEmail();
             }
             user.setEmail(email);
             user.setUsername(username);
         }
 
         context.setUser(user);
+        user.setSingleAttribute("custom.name", Objects.toString(userData.getNome(), ""));
+        user.setSingleAttribute("custom.description", Objects.toString(userData.getDescricao(), ""));
+        user.setSingleAttribute("custom.registration", Objects.toString(userData.getMatricula(), ""));
+        user.setSingleAttribute("custom.email", Objects.toString(userData.getEmail(), ""));
+        user.setSingleAttribute("custom.photo", Objects.toString(userData.getFoto(), ""));
+        user.setSingleAttribute("custom.unitId", String.valueOf(userData.getUnidadeId()));
+        user.setSingleAttribute("custom.unitName", Objects.toString(userData.getNomeUnidade(), ""));
+        user.setSingleAttribute("custom.courseId", String.valueOf(userData.getCursoId()));
+        user.setSingleAttribute("custom.entryYear", String.valueOf(userData.getAnoIngresso()));
+        user.setSingleAttribute("custom.statusDescription", Objects.toString(userData.getDescricaoSituacao(), ""));
+
         context.success();
     }
 }
