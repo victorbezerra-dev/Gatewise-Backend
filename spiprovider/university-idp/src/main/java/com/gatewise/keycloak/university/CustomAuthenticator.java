@@ -40,6 +40,23 @@ public class CustomAuthenticator extends UsernamePasswordForm implements Authent
             return;
         }
 
+        RealmModel realm = context.getRealm();
+        UserModel user = context.getSession().users().getUserByUsername(realm, username);
+
+        if (user != null && user.hasRole(realm.getRole("admin"))) {
+            if (validatePassword(context, user, formData, false)) {
+                context.setUser(user);
+                context.success();
+                return;
+            } else {
+                context.failureChallenge(
+                        AuthenticationFlowError.INVALID_CREDENTIALS,
+                        context.form().setError("Senha inválida para admin!").createLoginUsernamePassword()
+                );
+                return;
+            }
+        }
+
         CustomExternalApi externalApi = new CustomExternalApi();
         AuthResponseDTO response;
         try {
@@ -60,8 +77,6 @@ public class CustomAuthenticator extends UsernamePasswordForm implements Authent
             return;
         }
 
-        RealmModel realm = context.getRealm();
-        UserModel user = context.getSession().users().getUserByUsername(realm, username);
         Vinculo userData = response.getVinculo();
 
         if (user == null) {
