@@ -1,40 +1,77 @@
-var builder = WebApplication.CreateBuilder(args);
+using GateWise.Api.Extensions;
+using GateWise.Core.Interfaces;
+using GateWise.Infrastructure.Persistence;
+using GateWise.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.OpenApi;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Security.Claims;
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+var builder = WebApplication.CreateBuilder(args);
+Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
+builder.Services.AddSingleton<IAuthorizationHandler, GatewiseClientHandler>();
+builder.Services.AddControllers();
+
+builder.Services
+    .AddJwtAuthentication()
+    .AddCustomAuthorization()
+    .AddCustomOpenApi();
+
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+app.MapOpenApi();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/openapi/v1.json", "GateWise API v1");
+});
 
-app.UseHttpsRedirection();
-
-var summaries = new[]
+app.MapGet("/", context =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    context.Response.Redirect("/swagger/index.html");
+    return Task.CompletedTask;
+});
 
-app.MapGet("/weatherforecast", () =>
+app.Use(async (context, next) =>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+    await next();
+
+    context.Response.ContentType = "application/json";
+
+    if (context.Response.StatusCode == StatusCodes.Status403Forbidden)
+    {
+        await context.Response.WriteAsync("""
+        { "error": "forbidden", "message": "You are not authorized to access this resource." }
+        """);
+    }
+    else if (context.Response.StatusCode == StatusCodes.Status401Unauthorized)
+    {
+        await context.Response.WriteAsync("""
+        { "error": "unauthorized", "message": "Authentication token is missing or invalid." }
+        """);
+    }
+});
+
+app.UseCors();
+app.UseStaticFiles();
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
