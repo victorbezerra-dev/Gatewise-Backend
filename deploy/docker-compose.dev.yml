@@ -12,6 +12,8 @@ services:
 
   gatewise-db:
     image: postgres:15
+    ports:
+      - "5432:5432"  
     environment:
       POSTGRES_DB: gatewise
       POSTGRES_USER: gatewise
@@ -25,6 +27,8 @@ services:
     command: dotnet watch run --urls=http://0.0.0.0:8081
     volumes:
       - ../backend/GateWise.Api:/app/GateWise.Api
+      - ../backend/GateWise.Core:/app/GateWise.Core
+      - ../backend/GateWise.Infrastructure:/app/GateWise.Infrastructure
     ports:
     - "8081:8081"
     environment:
