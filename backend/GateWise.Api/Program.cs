@@ -26,6 +26,7 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod());
 });
 builder.Services.AddSingleton<IAuthorizationHandler, GatewiseClientHandler>();
+builder.Services.AddScoped<IClaimsTransformation, KeycloakClaimsTransformer>();
 builder.Services.AddControllers();
 
 builder.Services
