@@ -1,48 +1,45 @@
 using GateWise.Core.Entities;
-using GateWise.Infrastructure.Persistence;
+using GateWise.Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 [ApiController]
+[Authorize(Roles = "admin")]
 [Route("api/[controller]")]
 public class LabsController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly ILabRepository _labRepository;
 
-    public LabsController(AppDbContext context)
+    public LabsController(ILabRepository labRepository)
     {
-        _context = context;
+        _labRepository = labRepository;
     }
-    
-    [Authorize(Roles = "admin")]
-    [HttpGet]
-    public async Task<IActionResult> GetAll() => Ok(await _context.Labs.ToListAsync());
 
-    [Authorize(Policy = "IsAdmin")]
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var labs = await _labRepository.GetAllAsync();
+        return Ok(labs);
+    }
+
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(int id)
     {
-        var lab = await _context.Labs.FindAsync(id);
+        var lab = await _labRepository.GetByIdAsync(id);
         return lab is null ? NotFound() : Ok(lab);
     }
 
-    [Authorize(Policy = "IsAdmin")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] Lab lab)
     {
-        lab.CreatedAt = DateTime.UtcNow;
-        lab.UpdatedAt = DateTime.UtcNow;
-        _context.Labs.Add(lab);
-        await _context.SaveChangesAsync();
+        await _labRepository.AddAsync(lab);
         return CreatedAtAction(nameof(Get), new { id = lab.Id }, lab);
     }
 
-    [Authorize(Policy = "IsAdmin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] Lab lab)
     {
-        var existing = await _context.Labs.FindAsync(id);
+        var existing = await _labRepository.GetByIdAsync(id);
         if (existing is null) return NotFound();
 
         existing.Name = lab.Name;
@@ -56,21 +53,18 @@ public class LabsController : ControllerBase
         existing.IsActive = lab.IsActive;
         existing.OpenTime = lab.OpenTime;
         existing.CloseTime = lab.CloseTime;
-        existing.UpdatedAt = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync();
+        await _labRepository.UpdateAsync(existing);
         return NoContent();
     }
-    
-    [Authorize(Policy = "IsAdmin")]
+
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var lab = await _context.Labs.FindAsync(id);
+        var lab = await _labRepository.GetByIdAsync(id);
         if (lab is null) return NotFound();
 
-        _context.Labs.Remove(lab);
-        await _context.SaveChangesAsync();
+        await _labRepository.DeleteAsync(lab);
         return NoContent();
     }
 }
