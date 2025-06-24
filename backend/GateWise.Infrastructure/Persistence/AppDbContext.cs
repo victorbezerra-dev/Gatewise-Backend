@@ -6,6 +6,8 @@ namespace GateWise.Infrastructure.Persistence;
 public class AppDbContext : DbContext
 {
     public DbSet<User> Users => Set<User>();
+    public DbSet<Lab> Labs => Set<Lab>();
+
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
