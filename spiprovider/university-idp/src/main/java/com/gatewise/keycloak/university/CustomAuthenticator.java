@@ -11,6 +11,7 @@ import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 
 import com.gatewise.keycloak.university.dto.AuthResponseDTO;
+import com.gatewise.keycloak.university.dto.AuthResponseDTO.AffiliationType;
 import com.gatewise.keycloak.university.dto.AuthResponseDTO.Vinculo;
 
 import jakarta.ws.rs.core.MultivaluedMap;
@@ -113,7 +114,23 @@ public class CustomAuthenticator extends UsernamePasswordForm implements Authent
         }
 
         context.setUser(user);
+
         if (userData != null) {
+            int tipo = userData.getTipo();
+            switch (tipo) {
+                case AffiliationType.PROFESSOR:
+                case AffiliationType.SERVICE_PROVIDER_PROFESSOR:
+                    user.grantRole(realm.getRole("role_professor"));
+                    break;
+                case AffiliationType.STUDENT:
+                    user.grantRole(realm.getRole("role_student"));
+                    break;
+                case AffiliationType.VISITOR:
+                    user.grantRole(realm.getRole("role_visitor"));
+                    break;
+                default:
+                    break;
+            }
             user.setSingleAttribute("custom.name", Objects.toString(userData.getNome(), ""));
             user.setSingleAttribute("custom.description", Objects.toString(userData.getDescricao(), ""));
             user.setSingleAttribute("custom.registration", Objects.toString(userData.getMatricula(), ""));
