@@ -48,26 +48,23 @@ app.MapGet("/", context =>
     return Task.CompletedTask;
 });
 
-app.Use(async (context, next) =>
+
+app.UseStatusCodePages(async context =>
 {
-    await next();
+    var response = context.HttpContext.Response;
+    response.ContentType = "application/json";
 
-    context.Response.ContentType = "application/json";
-
-    if (context.Response.StatusCode == StatusCodes.Status403Forbidden)
+    if (response.StatusCode == StatusCodes.Status401Unauthorized)
     {
-        await context.Response.WriteAsync("""
-        { "error": "forbidden", "message": "You are not authorized to access this resource." }
-        """);
+        await response.WriteAsync("""{ "error": "unauthorized", "message": "Authentication token is missing or invalid." }""");
     }
-    else if (context.Response.StatusCode == StatusCodes.Status401Unauthorized)
+    else if (response.StatusCode == StatusCodes.Status403Forbidden)
     {
-        await context.Response.WriteAsync("""
-        { "error": "unauthorized", "message": "Authentication token is missing or invalid." }
-        """);
+        await response.WriteAsync("""{ "error": "forbidden", "message": "You are not authorized to access this resource." }""");
     }
-});
+});  
 
+app.UseCustomExceptionHandler();
 app.UseCors();
 app.UseStaticFiles();
 app.UseAuthentication();
