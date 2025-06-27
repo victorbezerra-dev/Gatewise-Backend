@@ -19,6 +19,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     
 builder.Services.AddScoped<ILabRepository, LabRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ILabAccessManagerRepository, LabAccessManagerRepository>();
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
