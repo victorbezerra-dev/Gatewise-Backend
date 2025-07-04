@@ -26,41 +26,54 @@ namespace GateWise.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AuthorizedUserId")
-                        .HasColumnType("integer");
+                    b.Property<string>("AuthorizedUserId")
+                        .IsRequired()
+                        .HasColumnType("varchar(36)")
+                        .HasColumnName("authorized_user_id");
 
                     b.Property<DateTime?>("GrantedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("granted_at");
 
-                    b.Property<int?>("GrantedByUserId")
-                        .HasColumnType("integer");
+                    b.Property<string>("GrantedByUserId")
+                        .HasColumnType("varchar(36)")
+                        .HasColumnName("granted_by_user_id");
 
                     b.Property<int>("LabId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("lab_id");
 
                     b.Property<string>("Reason")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("reason");
 
                     b.Property<DateTime?>("RevokedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("revoked_at");
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("status");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_access_grants");
 
-                    b.HasIndex("AuthorizedUserId");
+                    b.HasIndex("AuthorizedUserId")
+                        .HasDatabaseName("ix_access_grants_authorized_user_id");
 
-                    b.HasIndex("GrantedByUserId");
+                    b.HasIndex("GrantedByUserId")
+                        .HasDatabaseName("ix_access_grants_granted_by_user_id");
 
-                    b.HasIndex("LabId");
+                    b.HasIndex("LabId")
+                        .HasDatabaseName("ix_access_grants_lab_id");
 
                     b.ToTable("access_grants", (string)null);
                 });
@@ -69,62 +82,77 @@ namespace GateWise.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Building")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("building");
 
                     b.Property<int>("Capacity")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("capacity");
 
                     b.Property<DateTime>("CloseTime")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("close_time");
 
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("code");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("description");
 
                     b.Property<int>("Floor")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("floor");
 
                     b.Property<string>("ImagemUrl")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("imagem_url");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
 
                     b.Property<string>("Location")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("location");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
 
                     b.Property<DateTime>("OpenTime")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("open_time");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_labs");
 
                     b.ToTable("labs", (string)null);
                 });
@@ -133,72 +161,88 @@ namespace GateWise.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("LabId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("lab_id");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("varchar(36)")
+                        .HasColumnName("user_id");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_lab_access_managers");
 
-                    b.HasIndex("LabId");
+                    b.HasIndex("LabId")
+                        .HasDatabaseName("ix_lab_access_managers_lab_id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_lab_access_managers_user_id");
 
                     b.ToTable("lab_access_managers", (string)null);
                 });
 
             modelBuilder.Entity("GateWise.Core.Entities.User", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<string>("Id")
+                        .HasColumnType("varchar(36)")
+                        .HasColumnName("id");
 
                     b.Property<string>("DeviceManufactureName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("device_manufacture_name");
 
                     b.Property<string>("DeviceModel")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("device_model");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("email");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
 
                     b.Property<string>("OperationalSystem")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("operational_system");
 
                     b.Property<string>("OperationalSystemVersion")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("operational_system_version");
 
-                    b.Property<int>("RegistrationNumber")
+                    b.Property<string>("RegistrationNumber")
+                        .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("integer");
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("registration_number");
 
                     b.Property<string>("UserAvatarUrl")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("user_avatar_url");
 
                     b.Property<int>("UserType")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("user_type");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_users");
 
                     b.ToTable("users", (string)null);
                 });
@@ -208,19 +252,21 @@ namespace GateWise.Infrastructure.Migrations
                     b.HasOne("GateWise.Core.Entities.User", "AuthorizedUser")
                         .WithMany()
                         .HasForeignKey("AuthorizedUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_access_grants_users_authorized_user_id");
 
                     b.HasOne("GateWise.Core.Entities.User", "GrantedByUser")
                         .WithMany()
                         .HasForeignKey("GrantedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasConstraintName("fk_access_grants_users_granted_by_user_id");
 
                     b.HasOne("GateWise.Core.Entities.Lab", "Lab")
                         .WithMany()
                         .HasForeignKey("LabId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_access_grants_labs_lab_id");
 
                     b.Navigation("AuthorizedUser");
 
@@ -235,13 +281,15 @@ namespace GateWise.Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("LabId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_lab_access_managers_labs_lab_id");
 
                     b.HasOne("GateWise.Core.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_lab_access_managers_users_user_id");
 
                     b.Navigation("Lab");
 
