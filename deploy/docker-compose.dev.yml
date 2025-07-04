@@ -37,6 +37,25 @@ services:
     - gatewise-db
     - keycloak
 
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    ports:
+      - "5672:5672"     
+      - "15672:15672"   
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  consumer:
+    build:
+      context: ../sync-user-events-message-queue
+    env_file:
+      - ../sync-user-events-message-queue/.env
+    depends_on:
+      - rabbitmq
+      - gatewise-db
 
   maven-builder:
     image: maven:3.9.4-eclipse-temurin-17
@@ -49,3 +68,5 @@ services:
         mvn clean package &&
         cp target/*.jar /output
       "
+volumes:
+  rabbitmq_data:
