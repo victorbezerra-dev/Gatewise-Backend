@@ -17,7 +17,7 @@ public class UserRepository : IUserRepository
     public async Task<List<User>> GetAllAsync() =>
         await _context.Users.ToListAsync();
 
-    public async Task<User?> GetByIdAsync(int id) =>
+    public async Task<User?> GetByIdAsync(string id) =>
         await _context.Users.FindAsync(id);
 
     public async Task<User> CreateAsync(User user)
@@ -33,7 +33,7 @@ public class UserRepository : IUserRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task DeleteAsync(int id)
+    public async Task DeleteAsync(string id)
     {
         var user = await _context.Users.FindAsync(id);
         if (user != null)
@@ -43,7 +43,7 @@ public class UserRepository : IUserRepository
         }
     }
 
-    public async Task<User?> GetByEmailOrRegistrationAsync(string email, int registrationNumber)
+    public async Task<User?> GetByEmailOrRegistrationAsync(string email, string registrationNumber)
     {
         return await _context.Users
             .FirstOrDefaultAsync(u => u.Email == email || u.RegistrationNumber == registrationNumber);

@@ -10,6 +10,10 @@ public class LabAccessManagerConfiguration : IEntityTypeConfiguration<LabAccessM
 
         builder.HasKey(l => l.Id);
 
+        builder.Property(l => l.UserId)
+               .HasColumnType("varchar(36)")
+               .IsRequired();
+
         builder.HasOne(l => l.Lab)
                .WithMany()
                .HasForeignKey(l => l.LabId)

@@ -90,10 +90,8 @@ public class AccessGrantsController : ControllerBase
             return BadRequest("Cannot revert to 'Pending' status.");
 
         var grantedByUserIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (!int.TryParse(grantedByUserIdStr, out var grantedByUserId))
-            return Forbid();
 
-        accessGrant.GrantedByUserId = grantedByUserId;
+        accessGrant.GrantedByUserId = grantedByUserIdStr;
         accessGrant.Status = dto.Status;
         accessGrant.Reason = dto.Reason ?? accessGrant.Reason;
 
@@ -126,13 +124,13 @@ public class AccessGrantsController : ControllerBase
 
     [HttpGet("user/{userId}")]
     [Authorize]
-    public async Task<ActionResult<IEnumerable<AccessGrantResponseDto>>> GetByUserId(int userId)
+    public async Task<ActionResult<IEnumerable<AccessGrantResponseDto>>> GetByUserId(string userId)
     {
         var matricula = User.FindFirst("preferred_username")?.Value;
         if (string.IsNullOrWhiteSpace(matricula))
             return Forbid();
 
-        var currentUser = await _userRepository.GetByEmailOrRegistrationAsync("", int.Parse(matricula));
+        var currentUser = await _userRepository.GetByEmailOrRegistrationAsync("", matricula);
         if (currentUser is null)
             return Forbid();
 
@@ -156,7 +154,7 @@ public class AccessGrantsController : ControllerBase
         Id = accessGrant.Id,
         AuthorizedUserId = accessGrant.AuthorizedUserId,
         AuthorizedUserName = accessGrant.AuthorizedUser.Name,
-        GrantedByUserId = accessGrant.GrantedByUserId ?? 0,
+        GrantedByUserId = accessGrant.GrantedByUserId ?? "",
         GrantedByUserName = accessGrant.GrantedByUser?.Name ?? string.Empty,
         LabId = accessGrant.LabId,
         LabName = accessGrant.Lab.Name,

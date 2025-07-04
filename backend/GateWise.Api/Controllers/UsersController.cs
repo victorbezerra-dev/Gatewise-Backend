@@ -23,7 +23,7 @@ public class UsersController : ControllerBase
         Ok(await _repository.GetAllAsync());
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<User>> GetById(int id)
+    public async Task<ActionResult<User>> GetById(string id)
     {
         var user = await _repository.GetByIdAsync(id);
         return user == null ? NotFound() : Ok(user);
@@ -69,7 +69,7 @@ public class UsersController : ControllerBase
 
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, User user)
+    public async Task<IActionResult> Update(string id, User user)
     {
         if (id != user.Id)
             return BadRequest();
@@ -79,7 +79,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(string id)
     {
         await _repository.DeleteAsync(id);
         return NoContent();

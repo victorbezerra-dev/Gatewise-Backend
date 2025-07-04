@@ -6,10 +6,10 @@ public class AccessGrant
 {
     public int Id { get; set; }
 
-    public int AuthorizedUserId { get; set; }
+    public required string AuthorizedUserId { get; set; }
     public User AuthorizedUser { get; set; } = null!;
 
-    public int? GrantedByUserId { get; set; }
+    public string? GrantedByUserId { get; set; }
     public User? GrantedByUser { get; set; }
 
     public int LabId { get; set; }

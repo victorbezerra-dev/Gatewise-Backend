@@ -5,10 +5,10 @@ namespace GateWise.Application.DTOs;
 public class AccessGrantResponseDto
 {
     public int Id { get; set; }
-    public int AuthorizedUserId { get; set; }
+    public required string AuthorizedUserId { get; set; }
     public string AuthorizedUserName { get; set; } = string.Empty;
 
-    public int GrantedByUserId { get; set; }
+    public required string GrantedByUserId { get; set; }
     public string GrantedByUserName { get; set; } = string.Empty;
 
     public int LabId { get; set; }

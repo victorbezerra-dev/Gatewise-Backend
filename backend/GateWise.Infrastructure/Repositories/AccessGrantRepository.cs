@@ -45,7 +45,7 @@ public class AccessGrantRepository : IAccessGrantRepository
             .FirstOrDefaultAsync(g => g.Id == id);
     }
 
-    public async Task<IEnumerable<AccessGrant>> GetByUserIdAsync(int userId)
+    public async Task<IEnumerable<AccessGrant>> GetByUserIdAsync(string userId)
     {
         return await _context.AccessGrants
             .Include(g => g.AuthorizedUser)

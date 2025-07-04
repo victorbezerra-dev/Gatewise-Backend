@@ -4,11 +4,11 @@ namespace GateWise.Core.Entities;
 
 public class User
 {
-    public int Id { get; set; }
+    public string Id { get; set; }
 
     public string Name { get; set; }
     public string Email { get; set; }
-    public int RegistrationNumber { get; set; }
+    public string RegistrationNumber { get; set; }
 
     public string UserAvatarUrl { get; set; }
     public UserType UserType { get; set; }
@@ -22,7 +22,7 @@ public class User
     public User(
         string name,
         string email,
-        int registration,
+        string registration,
         string userAvatarUrl,
         UserType userType,
         string operationalSystem,

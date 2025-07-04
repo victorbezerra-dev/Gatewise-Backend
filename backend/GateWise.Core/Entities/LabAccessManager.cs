@@ -7,6 +7,6 @@ public class LabAccessManager
     public int LabId { get; set; }
     public Lab Lab { get; set; } = null!;
 
-    public int UserId { get; set; }
+    public required string UserId { get; set; }
     public User User { get; set; } = null!;
 }

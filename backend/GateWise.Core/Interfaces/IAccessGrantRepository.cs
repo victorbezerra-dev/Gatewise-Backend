@@ -6,7 +6,7 @@ public interface IAccessGrantRepository
 {
     Task<IEnumerable<AccessGrant>> GetAllAsync(string? search = null);
     Task<AccessGrant?> GetByIdAsync(int id);
-    Task<IEnumerable<AccessGrant>> GetByUserIdAsync(int userId);
+    Task<IEnumerable<AccessGrant>> GetByUserIdAsync(string userId);
 
     Task AddAsync(AccessGrant grant);
     Task UpdateAsync(AccessGrant grant);
