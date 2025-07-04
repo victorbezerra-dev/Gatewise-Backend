@@ -3,6 +3,8 @@ package com.gatewise.keycloak.university;
 import java.io.IOException;
 import java.util.Objects;
 
+import javax.sql.DataSource;
+
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.Authenticator;
@@ -13,6 +15,10 @@ import org.keycloak.models.UserModel;
 import com.gatewise.keycloak.university.dto.AuthResponseDTO;
 import com.gatewise.keycloak.university.dto.AuthResponseDTO.AffiliationType;
 import com.gatewise.keycloak.university.dto.AuthResponseDTO.Vinculo;
+import com.gatewise.keycloak.university.repositories.CustomExternalApi;
+import com.gatewise.keycloak.university.repositories.OutboxRepository;
+import com.gatewise.keycloak.university.utils.DataSourceProvider;
+import com.gatewise.keycloak.university.utils.UserEventBuilder;
 
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
@@ -79,6 +85,7 @@ public class CustomAuthenticator extends UsernamePasswordForm implements Authent
         }
 
         Vinculo userData = response.getVinculo();
+        String fullName = null;
 
         if (user == null) {
             user = context.getSession().users().addUser(realm, username);
@@ -87,11 +94,8 @@ public class CustomAuthenticator extends UsernamePasswordForm implements Authent
             String firstName = "";
             String lastName = "";
 
-            String fullName = null;
             if (response.getNome() != null) {
                 fullName = response.getNome().trim();
-            } else if (userData != null && userData.getNome() != null) {
-                fullName = userData.getNome().trim();
             }
 
             if (fullName != null && !fullName.isEmpty()) {
@@ -113,6 +117,17 @@ public class CustomAuthenticator extends UsernamePasswordForm implements Authent
             user.setUsername(username);
         }
 
+        String json = UserEventBuilder.buildUserLoggedInEvent(user);
+        RabbitMQPublisher publisher = new RabbitMQPublisher();
+
+        DataSource dataSource = DataSourceProvider.get();
+        OutboxRepository outbox = new OutboxRepository(dataSource);
+
+        boolean published = publisher.tryPublish(json);
+        if (!published) {
+            outbox.save("USER_LOGGED_IN", json);
+        }
+
         context.setUser(user);
 
         if (userData != null) {
@@ -131,7 +146,7 @@ public class CustomAuthenticator extends UsernamePasswordForm implements Authent
                 default:
                     break;
             }
-            user.setSingleAttribute("custom.name", Objects.toString(userData.getNome(), ""));
+            user.setSingleAttribute("custom.name", Objects.toString(fullName, ""));
             user.setSingleAttribute("custom.description", Objects.toString(userData.getDescricao(), ""));
             user.setSingleAttribute("custom.registration", Objects.toString(userData.getMatricula(), ""));
             user.setSingleAttribute("custom.email", Objects.toString(userData.getEmail(), ""));
@@ -141,6 +156,7 @@ public class CustomAuthenticator extends UsernamePasswordForm implements Authent
             user.setSingleAttribute("custom.courseId", String.valueOf(userData.getCursoId()));
             user.setSingleAttribute("custom.entryYear", String.valueOf(userData.getAnoIngresso()));
             user.setSingleAttribute("custom.statusDescription", Objects.toString(userData.getDescricaoSituacao(), ""));
+            user.setSingleAttribute("custom.userType", Objects.toString(userData.getTipo(), ""));
         }
 
         context.success();
