@@ -1,4 +1,4 @@
-package com.gatewise.keycloak.university;
+package com.gatewise.keycloak.university.repositories;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
