@@ -25,7 +25,7 @@ public class UserCustomClaimMapper extends AbstractOIDCProtocolMapper
 
     private static final List<String> CLAIM_KEYS = List.of(
             "name", "description", "registration", "email", "photo",
-            "unitId", "unitName", "courseId", "entryYear", "statusDescription"
+            "unitId", "unitName", "courseId", "entryYear", "statusDescription", "userType"
     );
 
     static {
