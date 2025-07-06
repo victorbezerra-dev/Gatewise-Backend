@@ -74,3 +74,5 @@ appsettings.Local.json
 
 backend/data
 node_modules
+
+.env
