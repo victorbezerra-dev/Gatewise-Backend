@@ -28,7 +28,7 @@ public class RabbitMQPublisher {
             return true;
 
         } catch (Exception e) {
-            System.err.println("Erro ao publicar no RabbitMQ (com confirmação): " + e.getMessage());
+            System.err.println("Error publishing to RabbitMQ (with confirmation):" + e.getMessage());
             return false;
         }
     }
