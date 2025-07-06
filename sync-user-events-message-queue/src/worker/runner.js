@@ -10,8 +10,13 @@ const MAX_RETRIES = 5;
 const saveToDatabase = async (payload) => {
   const user = payload.user;
 
-  await pool.query(
-    `INSERT INTO users (
+  if (!user?.id || !user?.name || !user?.email) {
+    console.warn('Invalid user data. Skipping insert.');
+    return;
+  }
+  try {
+    const result = await pool.query(
+      `INSERT INTO users (
       id, 
       name, 
       email, 
@@ -25,19 +30,23 @@ const saveToDatabase = async (payload) => {
     )
     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
     ON CONFLICT (id) DO NOTHING`,
-    [
-      user.id,
-      user.name,
-      user.email,
-      user.registration,
-      user.photo ?? '',
-      user.user_type,
-      user.operational_system ?? '',
-      user.operational_system_version ?? '',
-      user.device_model ?? '',
-      user.device_manufacture_name ?? ''
-    ]
-  );
+      [
+        user.id,
+        user.name,
+        user.email,
+        user.registration,
+        user.photo ?? '',
+        user.user_type,
+        user.operational_system ?? '',
+        user.operational_system_version ?? '',
+        user.device_model ?? '',
+        user.device_manufacture_name ?? ''
+      ]
+    );
+    console.log('DB insert result:', result.rowCount);
+  } catch (err) {
+    console.error('Error inserting user:', err.message);
+  }
 };
 
 const breaker = new CircuitBreaker(saveToDatabase, {
