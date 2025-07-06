@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   keycloak:
     command: start-dev
@@ -56,6 +54,15 @@ services:
     depends_on:
       - rabbitmq
       - gatewise-db
+
+  outbox-worker:
+    build:
+      context: ../event-sync-outbox-worker
+    env_file:
+      - ../event-sync-outbox-worker/.env
+    depends_on:
+      - gatewise-db
+      - rabbitmq
 
   maven-builder:
     image: maven:3.9.4-eclipse-temurin-17
