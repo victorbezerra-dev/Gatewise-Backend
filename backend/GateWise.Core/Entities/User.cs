@@ -18,7 +18,10 @@ public class User
     public string DeviceModel { get; set; }
     public string DeviceManufactureName { get; set; }
 
+    public string? DevicePublicKeyPem { get; set; } 
+
     private User() { }
+
     public User(
         string name,
         string email,
@@ -28,7 +31,8 @@ public class User
         string operationalSystem,
         string operationalSystemVersion,
         string deviceModel,
-        string deviceManufactureName)
+        string deviceManufactureName,
+        string? devicePublicKeyPem = null)
     {
         Name = name;
         Email = email;
@@ -39,6 +43,6 @@ public class User
         OperationalSystemVersion = operationalSystemVersion;
         DeviceModel = deviceModel;
         DeviceManufactureName = deviceManufactureName;
+        DevicePublicKeyPem = devicePublicKeyPem;
     }
-
 }

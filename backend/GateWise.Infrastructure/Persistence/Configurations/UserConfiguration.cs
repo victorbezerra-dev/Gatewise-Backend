@@ -11,7 +11,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
               builder.HasKey(u => u.Id);
 
               builder.Property(u => u.Id)
-                  .HasColumnType("varchar(36)") 
+                  .HasColumnType("varchar(36)")
                   .IsRequired();
 
               builder.Property(u => u.Name)
@@ -25,6 +25,10 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
               builder.Property(u => u.RegistrationNumber)
                      .IsRequired()
                      .HasMaxLength(20);
+
+              builder.Property(u => u.DevicePublicKeyPem)
+              .HasColumnType("text") 
+              .IsRequired(false);
 
               builder.Property(u => u.UserAvatarUrl)
                      .HasMaxLength(255);
