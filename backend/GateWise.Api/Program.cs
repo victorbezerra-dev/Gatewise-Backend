@@ -3,25 +3,37 @@ using GateWise.Core.Interfaces;
 using GateWise.Infrastructure.Persistence;
 using GateWise.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.OpenApi;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using System.Security.Claims;
+using MQTTnet;
+using MQTTnet.Client;
+
 
 var builder = WebApplication.CreateBuilder(args);
 Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-    
 builder.Services.AddScoped<ILabRepository, LabRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ILabAccessManagerRepository, LabAccessManagerRepository>();
 builder.Services.AddScoped<IAccessGrantRepository, AccessGrantRepository>();
+builder.Services.AddScoped<ILabAccessService, LabAccessService>();
+builder.Services.AddScoped<IAccessLogRepository, AccessLogRepository>();
+builder.Services.AddSingleton(sp =>
+{
+    return new MqttClientOptionsBuilder()
+        .WithClientId("GateWiseBackend")
+        .WithTcpServer("broker.hivemq.com", 1883)
+        .WithCleanSession()
+        .Build();
+});
 
+builder.Services.AddSingleton<IMqttClient>(sp =>
+{
+    var factory = new MqttFactory();
+    return factory.CreateMqttClient();
+});
 
 builder.Services.AddCors(options =>
 {
@@ -68,7 +80,7 @@ app.UseStatusCodePages(async context =>
     {
         await response.WriteAsync("""{ "error": "forbidden", "message": "You are not authorized to access this resource." }""");
     }
-});  
+});
 
 app.UseCustomExceptionHandler();
 app.UseCors();
