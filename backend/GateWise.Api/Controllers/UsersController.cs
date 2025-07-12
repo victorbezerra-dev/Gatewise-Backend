@@ -29,52 +29,12 @@ public class UsersController : ControllerBase
         return user == null ? NotFound() : Ok(user);
     }
 
-    [Authorize(Policy = "RequireClientIdGatewiseSync")]
-    [HttpPost("sync")]
-    public async Task<ActionResult<User>> Sync([FromBody] CreateUserDto userDto)
+    [Authorize()]
+    [HttpPatch("{id}")]
+    public async Task<IActionResult> Update(string id, [FromBody] UserUpsertDto user)
     {
-        var existingUser = await _repository.GetByEmailOrRegistrationAsync(userDto.Email, userDto.RegistrationNumber);
 
-        if (existingUser != null)
-        {
-            existingUser.Name = userDto.Name;
-            existingUser.UserAvatarUrl = userDto.UserAvatarUrl;
-            existingUser.UserType = userDto.UserType;
-            existingUser.OperationalSystem = userDto.OperationalSystem;
-            existingUser.OperationalSystemVersion = userDto.OperationalSystemVersion;
-            existingUser.DeviceModel = userDto.DeviceModel;
-            existingUser.DeviceManufactureName = userDto.DeviceManufactureName;
-
-            await _repository.UpdateAsync(existingUser);
-            return Ok(existingUser);
-        }
-        else
-        {
-            var newUser = new User(
-                userDto.Name,
-                userDto.Email,
-                userDto.RegistrationNumber,
-                userDto.UserAvatarUrl,
-                userDto.UserType,
-                userDto.OperationalSystem,
-                userDto.OperationalSystemVersion,
-                userDto.DeviceModel,
-                userDto.DeviceManufactureName
-            );
-
-            await _repository.CreateAsync(newUser);
-            return Ok(newUser);
-        }
-    }
-
-
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string id, User user)
-    {
-        if (id != user.Id)
-            return BadRequest();
-
-        await _repository.UpdateAsync(user);
+        await _repository.UpdateAsync(id, user);
         return NoContent();
     }
 
