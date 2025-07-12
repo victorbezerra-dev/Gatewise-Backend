@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using GateWise.Core.Dtos;
+using GateWise.Core.DTOs;
 using GateWise.Core.Entities;
 using GateWise.Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -10,10 +12,13 @@ using Microsoft.AspNetCore.Mvc;
 public class LabsController : ControllerBase
 {
     private readonly ILabRepository _labRepository;
+    private readonly ILabAccessService _labAccessService;
 
-    public LabsController(ILabRepository labRepository)
+
+    public LabsController(ILabRepository labRepository, ILabAccessService labAccessService)
     {
         _labRepository = labRepository;
+        _labAccessService = labAccessService;
     }
 
     [HttpGet]
@@ -55,6 +60,19 @@ public class LabsController : ControllerBase
         return CreatedAtAction(nameof(Get), new { id = lab.Id }, lab);
     }
 
+    [HttpPost("{id}/open")]
+    public async Task<IActionResult> OpenLab(int id, [FromBody] AccessLogCreateDto dto)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized("User ID not found in token.");
+
+        var commandId = await _labAccessService.RequestLabAccessAsync(userId, dto);
+        return Ok(new { commandId });
+    }
+
+
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] LabUpsertDto dto)
@@ -89,4 +107,5 @@ public class LabsController : ControllerBase
         await _labRepository.DeleteAsync(lab);
         return NoContent();
     }
+
 }
