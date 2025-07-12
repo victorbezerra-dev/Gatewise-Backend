@@ -1,12 +1,23 @@
-const { pool } = require('./db.js');
-const { publishToRabbitMQ } = require('./rabbitmq.js');
+import { pool } from './db.js';
+import { publishToRabbitMQ } from './rabbitmq.js';
 
 const WORKER_INTERVAL_MS = 5000;
 const RETRY_ATTEMPTS = 10;
 const RETRY_DELAY_MS = 2000;
-
+const client = await pool.connect();
 
 async function waitForDatabase() {
+  await client.query(`
+      CREATE TABLE IF NOT EXISTS outbox (
+        id UUID PRIMARY KEY,
+        event_type TEXT NOT NULL,
+        payload JSONB NOT NULL,
+        status TEXT NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT now(),
+        updated_at TIMESTAMP,
+        attempts INT DEFAULT 0
+      );
+    `);
   for (let attempt = 1; attempt <= RETRY_ATTEMPTS; attempt++) {
     try {
       await pool.query('SELECT 1');
@@ -21,7 +32,6 @@ async function waitForDatabase() {
 }
 
 async function processOutboxEvents() {
-  const client = await pool.connect();
 
   try {
     const { rows } = await client.query(`
