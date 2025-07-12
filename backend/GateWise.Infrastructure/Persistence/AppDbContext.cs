@@ -9,6 +9,7 @@ public class AppDbContext : DbContext
     public DbSet<Lab> Labs => Set<Lab>();
     public DbSet<LabAccessManager> LabAccessManagers => Set<LabAccessManager>();
     public DbSet<AccessGrant> AccessGrants => Set<AccessGrant>();
+    public DbSet<AccessLog> AccessLogs => Set<AccessLog>();
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
