@@ -5,9 +5,9 @@ using GateWise.Core.Entities;
 using GateWise.Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 [ApiController]
-[Authorize(Roles = "admin")]
 [Route("api/[controller]")]
 public class LabsController : ControllerBase
 {
@@ -15,12 +15,14 @@ public class LabsController : ControllerBase
     private readonly ILabAccessService _labAccessService;
 
 
-    public LabsController(ILabRepository labRepository, ILabAccessService labAccessService)
+
+    public LabsController(ILabRepository labRepository, ILabAccessService labAccessService, IAccessLogRepository accessLogRepository)
     {
         _labRepository = labRepository;
         _labAccessService = labAccessService;
     }
 
+    [Authorize(Roles = "admin")]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -28,13 +30,15 @@ public class LabsController : ControllerBase
         return Ok(labs);
     }
 
+    [Authorize(Roles = "admin")]
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(int id)
     {
         var lab = await _labRepository.GetByIdAsync(id);
         return lab is null ? NotFound() : Ok(lab);
     }
-
+    
+    [Authorize(Roles = "admin")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] LabUpsertDto dto)
     {
@@ -68,12 +72,22 @@ public class LabsController : ControllerBase
         if (string.IsNullOrEmpty(userId))
             return Unauthorized("User ID not found in token.");
 
-        var commandId = await _labAccessService.RequestLabAccessAsync(userId, dto);
+        var commandId = await _labAccessService.RequestLabAccessAsync(userId, id, dto);
         return Ok(new { commandId });
     }
 
+    [HttpPost("access-confirmation")]
+    public async Task<IActionResult> AccessConfirmation([FromBody] AccessLogConfirmDto dto)
+    {
+        var confirmed = await _labAccessService.ConfirmAccessAsync(dto);
 
+        if (confirmed)
+            return Ok();
+        else
+            return StatusCode(403, "Access not confirmed by app");
+    }
 
+    [Authorize(Roles = "admin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] LabUpsertDto dto)
     {
@@ -98,6 +112,7 @@ public class LabsController : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Roles = "admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

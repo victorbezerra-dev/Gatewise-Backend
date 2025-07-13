@@ -18,6 +18,7 @@ builder.Services.AddScoped<ILabRepository, LabRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ILabAccessManagerRepository, LabAccessManagerRepository>();
 builder.Services.AddScoped<IAccessGrantRepository, AccessGrantRepository>();
+builder.Services.AddSignalR();
 builder.Services.AddScoped<ILabAccessService, LabAccessService>();
 builder.Services.AddScoped<IAccessLogRepository, AccessLogRepository>();
 builder.Services.AddSingleton(sp =>
@@ -45,7 +46,6 @@ builder.Services.AddCors(options =>
 builder.Services.AddSingleton<IAuthorizationHandler, GatewiseClientHandler>();
 builder.Services.AddScoped<IClaimsTransformation, KeycloakClaimsTransformer>();
 builder.Services.AddControllers();
-
 builder.Services
     .AddJwtAuthentication()
     .AddCustomAuthorization()
@@ -88,5 +88,7 @@ app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<AccessConfirmationHub>("/accessconfirmationhub"); 
+
 
 app.Run();
