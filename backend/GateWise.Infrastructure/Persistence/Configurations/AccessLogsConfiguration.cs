@@ -1,3 +1,4 @@
+using GateWise.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -29,6 +30,21 @@ public class AccessLogConfiguration : IEntityTypeConfiguration<AccessLog>
 
         builder.Property(a => a.CommandId)
                .IsRequired();
-               
+
+        builder.Property(a => a.LabId)
+               .IsRequired();
+
+        builder.HasOne(a => a.Lab)
+               .WithMany()
+               .HasForeignKey(a => a.LabId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Property(a => a.UserId)
+               .IsRequired();
+
+        builder.HasOne(a => a.User)
+               .WithMany()
+               .HasForeignKey(a => a.UserId)
+               .OnDelete(DeleteBehavior.Restrict);
     }
 }
