@@ -37,7 +37,7 @@ public class LabAccessService : ILabAccessService
         _espPublicKey = File.ReadAllText(espPublicKeyPath);
     }
 
-    public async Task<string> RequestLabAccessAsync(string userId, AccessLogCreateDto dto)
+    public async Task<string> RequestLabAccessAsync(string userId, int labId, AccessLogCreateDto dto)
     {
         var user = await _userRepository.GetByIdAsync(userId);
         var devicePublicKey = user?.DevicePublicKeyPem?.Replace("\\n", "\n");
@@ -46,8 +46,6 @@ public class LabAccessService : ILabAccessService
             throw new InvalidOperationException("Device public key not registered.");
 
         var message = $"open:{dto.Timestamp}";
-        var data = Encoding.UTF8.GetBytes(message);
-
         var isValid = VerifyWithPublicKey(message, dto.Signature, devicePublicKey);
         if (!isValid)
             throw new SecurityException("Invalid signature from client device.");
@@ -88,6 +86,17 @@ public class LabAccessService : ILabAccessService
         };
 
         var payloadJson = JsonSerializer.Serialize(mqttPayload);
+        var log = new AccessLog
+        {
+            CommandId = commandId,
+            UserId = userId,
+            LabId = labId,
+            RawRequestJson = payloadJson,
+            Status = AccessStatus.PENDING_CONFIRMATION
+        };
+
+        await _accessLogRepository.CreateAsync(log);
+        await _accessLogRepository.SaveChangesAsync();
 
         var messageMQQT = new MqttApplicationMessageBuilder()
             .WithTopic("command/open-lock")
@@ -96,18 +105,6 @@ public class LabAccessService : ILabAccessService
             .Build();
 
         await _mqttClient.PublishAsync(messageMQQT);
-
-        var log = new AccessLog
-        {
-            CommandId = commandId,
-            UserId = userId,
-            RawRequestJson = payloadJson,
-            Status = AccessStatus.PENDING_CONFIRMATION
-        };
-
-        await _accessLogRepository.CreateAsync(log);
-        await _accessLogRepository.SaveChangesAsync();
-
         return payloadJson;
     }
 
