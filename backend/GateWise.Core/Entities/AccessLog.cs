@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json;
+using GateWise.Core.Entities;
 using GateWise.Core.Enums;
 
 public class AccessLog
@@ -12,7 +12,17 @@ public class AccessLog
     [Required]
     public string CommandId { get; set; } = Guid.NewGuid().ToString();
 
-    public string? UserId { get; set; }
+    [Required]
+    public required string UserId { get; set; }
+
+    [ForeignKey(nameof(UserId))]
+    public User User { get; set; } = default!;
+
+    [Required]
+    public int LabId { get; set; }
+
+    [ForeignKey(nameof(LabId))]
+    public Lab Lab { get; set; } = default!;
 
     [Required]
     public DateTime IssuedAt { get; set; } = DateTime.UtcNow;
