@@ -7,6 +7,17 @@ services:
       KC_DB_NAME: keycloak
       KC_DB_USER: keycloak
       KC_DB_PASSWORD: keycloak
+      KC_HOSTNAME: https://3kb5qjd2-8080.brs.devtunnels.ms   
+      KC_HOSTNAME_STRICT_HTTPS: "true"
+      KC_PROXY: xforwarded
+      KC_PROXY_ADDRESS_FORWARDING: "true"
+      KC_HOSTNAME_STRICT: "false"
+      KC_HTTP_ENABLED: "true"
+      KC_HTTP_PORT: 8080
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../keycloak/themes:/opt/keycloak/themes
 
   gatewise-db:
     image: postgres:15
@@ -22,13 +33,14 @@ services:
   backend:
     image: mcr.microsoft.com/dotnet/sdk:9.0
     working_dir: /app/GateWise.Api
-    command: dotnet watch run --urls=http://0.0.0.0:8081
+    command: dotnet watch run --urls=http://0.0.0.0:5353
     volumes:
       - ../backend/GateWise.Api:/app/GateWise.Api
       - ../backend/GateWise.Core:/app/GateWise.Core
       - ../backend/GateWise.Infrastructure:/app/GateWise.Infrastructure
+      - ../backend/GateWise.Api/Keys:/app/GateWise.Api/Keys
     ports:
-    - "8081:8081"
+      - "5353:5353"
     environment:
       ConnectionStrings__DefaultConnection: "Host=gatewise-db;Database=gatewise;Username=gatewise;Password=gatewise"
     depends_on:

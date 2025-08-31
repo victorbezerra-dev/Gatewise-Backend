@@ -20,6 +20,13 @@ services:
       KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
       KC_DB_USERNAME: keycloak
       KC_DB_PASSWORD: keycloak
+      KC_HOSTNAME: https://3kb5qjd2-8080.brs.devtunnels.ms  
+      KC_HOSTNAME_STRICT_HTTPS: "true"
+      KC_PROXY: xforwarded
+      KC_PROXY_ADDRESS_FORWARDING: "true"
+      KC_HOSTNAME_STRICT: "false"
+      KC_HTTP_ENABLED: "true"
+      KC_HTTP_PORT: 8080
     ports:
       - "8080:8080"
     volumes:
